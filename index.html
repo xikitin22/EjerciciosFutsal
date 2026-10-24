@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fútbol Sala · Biblioteca de ejercicios</title>
+<style>
+:root{--bg:#f4f6f3;--card:#fff;--tx:#14201a;--mu:#5d6b63;--br:#d9dfd9;--ac:#e8590c;--acx:#fff;--gr:#2f8f4e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111815;--card:#1a241f;--tx:#eef3ef;--mu:#9bab a0;--mu:#9baba0;--br:#2c3a33;--ac:#ff8a3d;--acx:#1a1208}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--br);background:var(--card)}
+h1{margin:0;font-size:1.25rem}
+nav{display:flex;gap:6px}
+button,select,input,textarea{font:inherit;color:var(--tx)}
+.tab,.btn{border:1px solid var(--br);background:var(--card);padding:8px 14px;border-radius:8px;cursor:pointer}
+.tab.on,.btn.pri{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.btn.dan{color:#c92a2a}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.bar input,.bar select,.f input,.f select,.f textarea{padding:9px 11px;border:1px solid var(--br);border-radius:8px;background:var(--card)}
+.bar input{flex:1;min-width:180px}
+.bar .av{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.95rem}.bar .av input{width:64px;min-width:0;flex:none}
+.row{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--br);border-radius:12px;padding:10px;margin-bottom:10px}.row canvas{width:140px;border-radius:6px;flex:none}.row .m{flex:1;min-width:0}.row .m h3{margin:0 0 6px;font-size:1rem}.row .k{display:flex;flex-direction:column;gap:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--br);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.card canvas{width:100%;display:block;cursor:pointer}
+.cb{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cb h3{margin:0;font-size:1.05rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;padding:2px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--br);color:var(--mu)}
+.chip.c{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.acts{display:flex;gap:6px;margin-top:auto}
+.empty{text-align:center;color:var(--mu);padding:40px 0}
+.ed{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
+@media(max-width:820px){.ed{grid-template-columns:1fr}}
+.board{background:var(--card);border:1px solid var(--br);border-radius:12px;padding:12px}
+#cv{width:100%;border-radius:8px;touch-action:none;display:block;cursor:crosshair}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tools .tab{font-size:.85rem;padding:6px 10px}
+.f{display:flex;flex-direction:column;gap:10px}
+.f label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;color:var(--mu)}
+.f .r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:.8rem;color:var(--mu);margin:8px 0 0}
+dialog{border:1px solid var(--br);border-radius:14px;background:var(--card);color:var(--tx);max-width:760px;width:calc(100% - 24px);padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog canvas{width:100%;border-radius:8px}
+.pre{white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚽ Fútbol Sala · Ejercicios</h1><span class="chip" id="src">Conectando…</span>
+  <nav><button class="tab on" id="t1">Biblioteca</button><button class="tab" id="t2">Crear ejercicio</button><button class="tab" id="t3">Sesión <span id="cnt"></span></button></nav>
+</header>
+<main>
+<section id="v1">
+  <div class="bar">
+    <input id="q" type="search" placeholder="Buscar ejercicio…">
+    <select id="fc"><option value="">Todas las categorías</option></select>
+    <select id="fn"><option value="">Todos los niveles</option><option>Iniciación</option><option>Intermedio</option><option>Avanzado</option></select>
+    <label class="av">Tengo <input id="fj" type="number" min="0" placeholder="–"> jugadores y <input id="fp" type="number" min="0" placeholder="–"> porteros</label>
+    <button class="btn" id="imp" hidden></button>
+    <select id="fa" hidden><option value="">Todos los autores</option><option value="me">Solo los míos</option></select>
+    <button class="btn" id="tr" hidden></button>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section id="v2" hidden>
+  <div class="ed">
+    <div class="board">
+      <div class="tools" id="tools"></div>
+      <canvas id="cv" width="800" height="400"></canvas>
+      <p class="hint">Elige una herramienta y pulsa en la pista. Las flechas y pases se dibujan arrastrando. Con la goma, pulsa un elemento para borrarlo.</p>
+      <div class="tools" style="margin:10px 0 0"><button class="btn sm" id="undo">Deshacer</button><button class="btn sm dan" id="clr">Vaciar pista</button></div>
+    </div>
+    <div class="f">
+      <label>Nombre<input id="nm" placeholder="Ej.: Rondo 4x1 con transición"></label>
+      <div class="r">
+        <label>Categoría<select id="ct"></select></label>
+        <label>Nivel<select id="lv"><option>Iniciación</option><option selected>Intermedio</option><option>Avanzado</option></select></label>
+      </div>
+      <div class="r">
+        <label>Duración (min)<input id="du" type="number" min="1" value="10"></label>
+        <label>Jugadores de campo<input id="jf" type="number" min="0" value="6"></label></div><div class="r"><label>Porteros<input id="po" type="number" min="0" value="0"></label><span></span>
+      </div>
+      <label>Objetivo<input id="ob" placeholder="Qué se trabaja"></label>
+      <label>Descripción y consignas<textarea id="ds" rows="5" placeholder="Organización, reglas, progresiones…"></textarea></label>
+      <div style="display:flex;gap:8px"><button class="btn pri" id="sv">Guardar en la biblioteca</button><button class="btn" id="nw">Nuevo</button></div>
+    </div>
+  </div>
+</section>
+<section id="v3" hidden>
+  <div class="bar"><input id="sn" placeholder="Nombre de la sesión (ej.: Martes · Sub-14)"><button class="btn" id="sx">Vaciar</button><button class="btn pri" id="sd">Descargar sesión</button></div>
+  <p id="sum" style="margin:0 0 14px"></p>
+  <div id="sl"></div>
+</section>
+</main>
+<dialog id="dlg"><div id="dc"></div><div style="text-align:right;margin-top:12px"><button class="btn" id="cl">Cerrar</button></div></dialog>
+
+<script>
+var CATS=["Calentamiento","Técnica individual","Pase y control","Finalización","Defensa","Transiciones","Jugadas ensayadas","Porteros","Juego reducido"];
+var TOOLS=[["p","Atacante"],["d","Defensor"],["g","Portero"],["b","Balón"],["c","Cono"],["a","Movimiento →"],["s","Pase ⇢"],["x","Goma"]];
+var SEED=[
+{id:"s1",name:"Rondo 4x1",cat:"Pase y control",lvl:"Iniciación",dur:10,pl:"5 jugadores",jf:5,po:0,obj:"Pase rápido y movilidad sin balón",ds:"Cuatro jugadores pasan en un cuadrado de 6x6 m y uno defiende. Máximo dos toques. Si el defensor roba, intercambia con quien perdió el balón.",items:[{t:"c",x:300,y:120},{t:"c",x:500,y:120},{t:"c",x:300,y:280},{t:"c",x:500,y:280},{t:"p",x:300,y:200,n:1},{t:"p",x:400,y:120,n:2},{t:"p",x:500,y:200,n:3},{t:"p",x:400,y:280,n:4},{t:"d",x:400,y:200,n:1},{t:"b",x:312,y:210},{t:"s",x:320,y:190,x2:384,y2:128}]},
+{id:"s2",name:"Salida de presión con portero",cat:"Transiciones",lvl:"Intermedio",dur:15,pl:"4 vs 3 + portero",jf:7,po:1,obj:"Iniciar juego desde atrás ante presión alta",ds:"El portero inicia con el pie. Los cuatro atacantes buscan superar la presión de tres defensores y finalizar en menos de 12 segundos.",items:[{t:"g",x:30,y:200,n:1},{t:"p",x:150,y:90,n:1},{t:"p",x:150,y:310,n:2},{t:"p",x:260,y:200,n:3},{t:"p",x:380,y:120,n:4},{t:"d",x:210,y:140,n:1},{t:"d",x:210,y:260,n:2},{t:"d",x:320,y:200,n:3},{t:"b",x:46,y:206},{t:"s",x:44,y:195,x2:140,y2:100},{t:"a",x:380,y:120,x2:560,y2:150}]},
+{id:"s3",name:"Finalización tras pared",cat:"Finalización",lvl:"Intermedio",dur:12,pl:"6 + portero",jf:6,po:1,obj:"Combinación y remate rápido",ds:"Pivot en zona de ataque recibe, devuelve de pared al compañero que llega desde la banda y este remata a primer toque. Alternar lados.",items:[{t:"g",x:770,y:200,n:1},{t:"p",x:380,y:60,n:1},{t:"p",x:560,y:200,n:2},{t:"d",x:640,y:160,n:1},{t:"b",x:396,y:70},{t:"s",x:400,y:80,x2:548,y2:190},{t:"s",x:560,y:190,x2:480,y2:110},{t:"a",x:400,y:80,x2:620,y2:260}]}
+];
+var trash=false,usr=null,me=null,adm=false,shared=null,lib=null,cur=[],tool="p",cid=null,st=null,pv=null;
+try{var raw=localStorage.getItem("fs_lib");if(raw)lib=JSON.parse(raw)}catch(e){}
+if(!Array.isArray(lib))lib=SEED.slice();
+lib.forEach(function(e){if(e.jf===undefined){var s=SEED.find(function(x){return x.id===e.id});if(s){e.jf=s.jf;e.po=s.po}}});
+function persist(){if(shared)return;try{localStorage.setItem("fs_lib",JSON.stringify(lib))}catch(e){}}
+var $=function(s){return document.querySelector(s)};
+
+/* ---- drawing ---- */
+function arrow(x,y,x2,y2,dash,s){var c=this;c.save();c.strokeStyle="#fff";c.fillStyle="#fff";c.lineWidth=3*s;c.setLineDash(dash?[8*s,6*s]:[]);c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();c.setLineDash([]);var a=Math.atan2(y2-y,x2-x),h=12*s;c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-h*Math.cos(a-.45),y2-h*Math.sin(a-.45));c.lineTo(x2-h*Math.cos(a+.45),y2-h*Math.sin(a+.45));c.closePath();c.fill();c.restore()}
+function court(c){c.fillStyle="#2f8f4e";c.fillRect(0,0,800,400);c.strokeStyle="rgba(255,255,255,.9)";c.lineWidth=3;c.strokeRect(10,10,780,380);c.beginPath();c.moveTo(400,10);c.lineTo(400,390);c.stroke();c.beginPath();c.arc(400,200,60,0,7);c.stroke();[10,790].forEach(function(gx,i){c.beginPath();c.arc(gx,200,120,i?Math.PI/2:-Math.PI/2,i?Math.PI*1.5:Math.PI/2);c.stroke();c.fillStyle="#fff";c.fillRect(i?790:2,170,8,60)})}
+function draw(cv,items,pre){var s=cv.width/800,c=cv.getContext("2d");c.setTransform(s,0,0,s,0,0);court(c);var A=arrow.bind(c);
+  items.concat(pre?[pre]:[]).forEach(function(o){
+    if(o.t==="a"||o.t==="s"){A(o.x,o.y,o.x2,o.y2,o.t==="s",1);return}
+    c.save();c.translate(o.x,o.y);
+    if(o.t==="c"){c.fillStyle="#ff922b";c.beginPath();c.moveTo(0,-12);c.lineTo(11,10);c.lineTo(-11,10);c.closePath();c.fill();c.strokeStyle="#fff";c.lineWidth=2;c.stroke()}
+    else if(o.t==="b"){c.fillStyle="#fff";c.beginPath();c.arc(0,0,9,0,7);c.fill();c.strokeStyle="#111";c.lineWidth=2;c.stroke();c.fillStyle="#111";c.beginPath();c.arc(0,0,3.5,0,7);c.fill()}
+    else{c.fillStyle=o.t==="p"?"#1c7ed6":o.t==="d"?"#e03131":"#f2c200";c.beginPath();c.arc(0,0,16,0,7);c.fill();c.strokeStyle="#fff";c.lineWidth=2.5;c.stroke();c.fillStyle=o.t==="g"?"#111":"#fff";c.font="bold 16px system-ui";c.textAlign="center";c.textBaseline="middle";c.fillText(o.n||"",0,1)}
+    c.restore()})}
+
+/* ---- library ---- */
+function fillSel(sel,first){CATS.forEach(function(k){var o=document.createElement("option");o.textContent=k;sel.appendChild(o)})}
+fillSel($("#fc"));fillSel($("#ct"));
+function chips(e){return '<div class="chips"><span class="chip c"></span><span class="chip"></span><span class="chip"></span><span class="chip"></span></div>'}
+function req(e){if(e.jf===undefined)return e.pl||"";return e.jf+" jugadores"+(e.po?" + "+e.po+(e.po>1?" porteros":" portero"):"")}
+function mkChips(e){var d=document.createElement("div");d.className="chips";[[e.cat,1],[e.lvl],[e.dur+" min"],[req(e)]].forEach(function(a){if(!a[0]&&a[0]!==0)return;var s=document.createElement("span");s.className="chip"+(a[1]?" c":"");s.textContent=a[0];d.appendChild(s)});if(e.by){var au=document.createElement("span");au.className="chip au";au.dataset.by=e.by;au.textContent="Por …";d.appendChild(au)}return d}
+function render(){var g=$("#grid");g.textContent="";utr();var q=$("#q").value.toLowerCase(),fc=$("#fc").value,fn=$("#fn").value,fj=$("#fj").value,fp=$("#fp").value,fa=$("#fa").value;
+  var l=lib.filter(function(e){return!!e.del===trash&&(!trash||!shared||adm||e.by===me)&&(!fc||e.cat===fc)&&(fa!=="me"||e.by===me)&&(fj===""||e.jf===undefined||e.jf<=+fj)&&(fp===""||e.po===undefined||e.po<=+fp)&&(!fn||e.lvl===fn)&&(!q||(e.name+" "+e.obj+" "+e.ds).toLowerCase().indexOf(q)>-1)});
+  if(!l.length){g.innerHTML='<div class="empty">'+(trash?"La papelera está vacía.":"No hay ejercicios. Crea el primero en la pestaña «Crear ejercicio».")+'</div>';return}
+  l.forEach(function(e){var d=document.createElement("div");d.className="card";var cv=document.createElement("canvas");cv.width=400;cv.height=200;draw(cv,e.items||[]);cv.onclick=function(){show(e)};d.appendChild(cv);
+    var b=document.createElement("div");b.className="cb";var h=document.createElement("h3");h.textContent=e.name;b.appendChild(h);b.appendChild(mkChips(e));
+    var a=document.createElement("div");a.className="acts";
+    [["+ Sesión",function(b){ses.ids.push(e.id);psess();ucnt();b.textContent="Añadido ✓";setTimeout(function(){b.textContent="+ Sesión"},1200)}],["Ver",function(){show(e)}],["Editar",function(){edit(e)}],["Eliminar",function(){if(confirm("¿Mover «"+e.name+"» a la papelera?")){delEx(e);render()}},"dan"],["Restaurar",function(){restoreEx(e);render()}],["Borrar del todo",function(){if(confirm("Se borrará para siempre «"+e.name+"». ¿Continuar?")){purgeEx(e);render()}},"dan"]].forEach(function(z){if(trash?(z[0]==="Editar"||z[0]==="+ Sesión"||z[0]==="Eliminar"):(z[0]==="Restaurar"||z[0]==="Borrar del todo"))return;if((z[0]==="Editar"||z[0]==="Eliminar"||z[0]==="Restaurar")&&!canMod(e))return;if(z[0]==="Borrar del todo"&&!canPurge())return;var k=document.createElement("button");k.className="btn sm "+(z[2]||"");k.textContent=z[0];k.onclick=function(){z[1](k)};a.appendChild(k)});
+    b.appendChild(a);d.appendChild(b);g.appendChild(d)});fillNames()}
+function show(e){var c=$("#dc");c.textContent="";var h=document.createElement("h2");h.textContent=e.name;h.style.margin="0 0 8px";var cv=document.createElement("canvas");cv.width=720;cv.height=360;draw(cv,e.items||[]);
+  var o=document.createElement("p");o.innerHTML="<b>Objetivo:</b> ";o.appendChild(document.createTextNode(e.obj||"—"));var p=document.createElement("p");p.className="pre";p.textContent=e.ds||"";
+  c.appendChild(h);c.appendChild(mkChips(e));c.appendChild(document.createElement("br"));c.appendChild(cv);c.appendChild(o);c.appendChild(p);$("#dlg").showModal();fillNames()}
+$("#cl").onclick=function(){$("#dlg").close()};
+["#q","#fc","#fn","#fj","#fp","#fa"].forEach(function(s){$(s).oninput=render});
+
+/* ---- tabs ---- */
+function tab(n){[1,2,3].forEach(function(i){$("#v"+i).hidden=n!==i;$("#t"+i).classList.toggle("on",n===i)});if(n===1)render();else if(n===2)redraw();else rsess()}
+$("#t1").onclick=function(){tab(1)};$("#t2").onclick=function(){tab(2)};$("#t3").onclick=function(){tab(3)};
+
+/* ---- editor ---- */
+var tb=$("#tools");TOOLS.forEach(function(t){var b=document.createElement("button");b.className="tab"+(t[0]===tool?" on":"");b.textContent=t[1];b.onclick=function(){tool=t[0];[].forEach.call(tb.children,function(x){x.classList.remove("on")});b.classList.add("on")};tb.appendChild(b)});
+var cv=$("#cv");
+function pos(e){var r=cv.getBoundingClientRect();return{x:Math.round((e.clientX-r.left)*800/r.width),y:Math.round((e.clientY-r.top)*400/r.height)}}
+function redraw(){draw(cv,cur,pv)}
+cv.onpointerdown=function(e){var p=pos(e);cv.setPointerCapture(e.pointerId);
+  if(tool==="x"){var bi=-1,bd=26;cur.forEach(function(o,i){var d=Math.hypot(o.x-p.x,o.y-p.y);if(o.x2!==undefined)d=Math.min(d,Math.hypot(o.x2-p.x,o.y2-p.y));if(d<bd){bd=d;bi=i}});if(bi>-1){cur.splice(bi,1);redraw()}return}
+  if(tool==="a"||tool==="s"){st=p;return}
+  var o={t:tool,x:p.x,y:p.y};if(tool==="p"||tool==="d"||tool==="g")o.n=cur.filter(function(x){return x.t===tool}).length+1;cur.push(o);redraw()};
+cv.onpointermove=function(e){if(!st)return;var p=pos(e);pv={t:tool,x:st.x,y:st.y,x2:p.x,y2:p.y};redraw()};
+cv.onpointerup=function(e){if(!st)return;var p=pos(e);if(Math.hypot(p.x-st.x,p.y-st.y)>15)cur.push({t:tool,x:st.x,y:st.y,x2:p.x,y2:p.y});st=null;pv=null;redraw()};
+$("#undo").onclick=function(){cur.pop();redraw()};
+$("#clr").onclick=function(){if(!cur.length||confirm("¿Vaciar la pista?")){cur=[];redraw()}};
+function reset(){cid=null;cur=[];["#nm","#ob","#ds"].forEach(function(s){$(s).value=""});$("#jf").value=6;$("#po").value=0;$("#du").value=10;$("#ct").selectedIndex=0;$("#lv").value="Intermedio";$("#sv").textContent="Guardar en la biblioteca";redraw()}
+$("#nw").onclick=reset;
+function edit(e){cid=e.id;cur=JSON.parse(JSON.stringify(e.items||[]));$("#nm").value=e.name;$("#ct").value=e.cat;$("#lv").value=e.lvl;$("#du").value=e.dur;$("#jf").value=e.jf===undefined?"":e.jf;$("#po").value=e.po===undefined?0:e.po;$("#ob").value=e.obj||"";$("#ds").value=e.ds||"";$("#sv").textContent="Guardar cambios";tab(2)}
+$("#sv").onclick=function(){var n=$("#nm").value.trim();if(!n){alert("Ponle un nombre al ejercicio.");$("#nm").focus();return}
+  var e={id:cid||("e"+Date.now()),name:n,cat:$("#ct").value,lvl:$("#lv").value,dur:+$("#du").value||0,jf:+$("#jf").value||0,po:+$("#po").value||0,pl:"",obj:$("#ob").value.trim(),ds:$("#ds").value.trim(),items:cur.slice(),ts:Date.now(),by:authorFor(cid)};
+  saveEx(e);reset();tab(1)};
+/* ---- sesión ---- */
+var ses={name:"",ids:[]};try{var rs=localStorage.getItem("fs_ses");if(rs)ses=JSON.parse(rs)}catch(e){}
+function psess(){try{localStorage.setItem("fs_ses",JSON.stringify(ses))}catch(e){}}
+function sitems(){return ses.ids.map(function(id){return lib.find(function(e){return e.id===id&&!e.del})}).filter(Boolean)}
+function ucnt(){var n=sitems().length;$("#cnt").textContent=n?"("+n+")":""}
+function stats(L){var t=0,j=0,p=0;L.forEach(function(e){t+=e.dur||0;j=Math.max(j,e.jf||0);p=Math.max(p,e.po||0)});return{t:t,j:j,p:p}}
+function rsess(){ses.ids=ses.ids.filter(function(id){return lib.some(function(e){return e.id===id&&!e.del})});var L=sitems(),S=stats(L);$("#sn").value=ses.name||"";ucnt();var s=$("#sl");s.textContent="";
+  L.forEach(function(e,i){var r=document.createElement("div");r.className="row";var c=document.createElement("canvas");c.width=280;c.height=140;draw(c,e.items||[]);
+    var m=document.createElement("div");m.className="m";var h=document.createElement("h3");h.textContent=(i+1)+". "+e.name;m.appendChild(h);m.appendChild(mkChips(e));
+    var k=document.createElement("div");k.className="k";
+    [["↑",-1],["↓",1],["✕",0]].forEach(function(z){var b=document.createElement("button");b.className="btn sm";b.textContent=z[0];b.onclick=function(){var j=i+z[1];if(z[1]===0)ses.ids.splice(i,1);else if(j>=0&&j<ses.ids.length){var t=ses.ids[i];ses.ids[i]=ses.ids[j];ses.ids[j]=t}psess();rsess()};k.appendChild(b)});
+    r.appendChild(c);r.appendChild(m);r.appendChild(k);s.appendChild(r)});
+  $("#sum").textContent=L.length?"Duración total: "+S.t+" min · Necesitas hasta "+S.j+" jugadores"+(S.p?" y "+S.p+(S.p>1?" porteros":" portero"):"")+" (el máximo de cualquier ejercicio).":"Aún no hay ejercicios. Añádelos con «+ Sesión» desde la biblioteca.";fillNames()}
+$("#sn").oninput=function(){ses.name=this.value;psess()};
+$("#sx").onclick=function(){if(ses.ids.length&&confirm("¿Vaciar la sesión?")){ses.ids=[];psess();rsess()}};
+function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+$("#sd").onclick=async function(){var L=sitems();if(!L.length){alert("Añade ejercicios a la sesión primero.");return}
+  var S=stats(L),h='<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>'+esc(ses.name||"Sesión")+'</title><style>body{font:15px/1.4 system-ui,sans-serif;max-width:800px;margin:20px auto;padding:0 16px;color:#111}h1{margin:0 0 4px}.ex{break-inside:avoid;border-top:2px solid #ccc;padding:12px 0}img{width:100%;max-width:560px;border-radius:6px}.m{color:#555;font-size:.9rem}p{white-space:pre-wrap;margin:6px 0}</style></head><body><h1>'+esc(ses.name||"Sesión de entrenamiento")+'</h1><div class="m">Duración total: '+S.t+' min · Hasta '+S.j+' jugadores'+(S.p?' + '+S.p+' porteros':'')+'</div>';
+  L.forEach(function(e,i){var c=document.createElement("canvas");c.width=800;c.height=400;draw(c,e.items||[]);
+    h+='<div class="ex"><h2>'+(i+1)+'. '+esc(e.name)+'</h2><div class="m">'+esc(e.cat)+' · '+esc(e.lvl)+' · '+e.dur+' min · '+esc(req(e))+'</div><img src="'+c.toDataURL("image/png")+'" alt=""><p><b>Objetivo:</b> '+esc(e.obj)+'</p><p>'+esc(e.ds)+'</p></div>'});
+  h+='</body></html>';
+  var d=null;try{d=window.claude?await claude.use("downloads"):null}catch(e){}
+  if(!d){window.print();return}
+  try{await d.save({filename:"sesion-futbol-sala.html",data:h})}catch(e){if(!e||e.code!=="declined")alert("No se ha podido descargar el archivo.")}};
+/* ---- biblioteca compartida ---- */
+function canMod(e){return !shared||!e.by||e.by===me||adm}
+function authorFor(id){var x=id&&lib.find(function(y){return y.id===id});return(x&&x.by)||me||undefined}
+async function fillNames(){if(!usr)return;var els=[].slice.call(document.querySelectorAll(".au[data-by]")),ids=[];els.forEach(function(x){if(ids.indexOf(x.dataset.by)<0)ids.push(x.dataset.by)});if(!ids.length)return;try{var ps=await usr.profiles(ids);els.forEach(function(x){var p=ps[x.dataset.by];x.textContent="Por "+((p&&p.name)||"alguien")+(x.dataset.by===me?" (tú)":"")})}catch(x){}}
+function dberr(){alert("No se ha podido guardar en la biblioteca compartida. Es posible que solo tengas permiso de lectura: pide al propietario que te dé permiso de edición.")}
+function saveEx(e){var i=lib.findIndex(function(x){return x.id===e.id});if(i>-1)lib[i]=e;else lib.unshift(e);persist();if(shared){var o=JSON.parse(JSON.stringify(e));delete o.id;shared.doc(e.id).set(o).catch(dberr)}}
+function canPurge(){return !shared||adm}
+function delEx(e){e.del=true;e.delBy=me||null;persist();if(shared)shared.doc(e.id).update({del:true,delBy:me||null}).catch(dberr)}
+function restoreEx(e){e.del=false;persist();if(shared)shared.doc(e.id).update({del:false}).catch(dberr)}
+function purgeEx(e){lib=lib.filter(function(x){return x.id!==e.id});persist();if(shared)shared.doc(e.id).delete().catch(dberr)}
+function utr(){var n=lib.filter(function(e){return e.del&&(!shared||adm||e.by===me)}).length,b=$("#tr");b.hidden=!n&&!trash;b.textContent=trash?"← Volver a la biblioteca":"Papelera ("+n+")"}
+$("#tr").onclick=function(){trash=!trash;render()};
+function offer(){var b=$("#imp"),loc=[];try{loc=JSON.parse(localStorage.getItem("fs_lib")||"[]")||[]}catch(x){}
+  var ids={};lib.forEach(function(e){ids[e.id]=1});SEED.forEach(function(s){ids[s.id]=1});var n=loc.filter(function(e){return e&&!ids[e.id]});
+  b.hidden=!n.length;b.textContent="Subir "+n.length+" ejercicio(s) guardados en este navegador";
+  b.onclick=function(){b.hidden=true;n.forEach(function(e){var o=JSON.parse(JSON.stringify(e));delete o.id;o.ts=o.ts||Date.now();shared.doc(e.id).set(o).catch(dberr)})}}
+(async function(){var db=null;try{db=window.claude?await claude.use("db"):null}catch(x){}
+  if(!db){$("#src").textContent="Solo en este navegador";return}
+  try{var us=await claude.use("user");if(us){me=await us.id();adm=await us.canEdit();usr=us;$("#fa").hidden=!me}}catch(x){}
+  shared=db.collection("exercises");$("#src").textContent="Biblioteca compartida";
+  shared.onSnapshot(function(sn){lib=sn.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});lib.sort(function(a,b){return(b.ts||0)-(a.ts||0)});render();ucnt();if(!$("#v3").hidden)rsess();offer()},function(){$("#src").textContent="Sin conexión con la biblioteca"})})();
+render();ucnt();
+</script>
+</body>
+</html>
