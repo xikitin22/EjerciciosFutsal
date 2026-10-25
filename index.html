@@ -67,7 +67,7 @@ dialog canvas{width:100%;max-height:60vh;object-fit:contain;border-radius:8px}
     <button class="btn" id="imp" hidden></button>
     <select id="fa" hidden><option value="">Todos los autores</option><option value="me">Solo los míos</option></select>
     <button class="btn" id="tr" hidden></button>
-    <select id="fk"><option value="">Todo tipo de campo</option><option value="full">Campo completo</option><option value="half">Medio campo</option><option value="any">No afecta</option></select>
+    <select id="fk"><option value="">Todo tipo de campo</option><option value="full">Campo completo</option><option value="half">Medio campo</option></select>
     <button class="btn" id="fvb">☆ Favoritos</button>
   </div>
   <div class="grid" id="grid"></div>
@@ -76,7 +76,7 @@ dialog canvas{width:100%;max-height:60vh;object-fit:contain;border-radius:8px}
 <section id="v2" hidden>
   <div class="ed">
     <div class="board">
-      <div class="tools"><label style="display:flex;align-items:center;gap:8px;font-size:.9rem">Campo <select id="cc" style="padding:6px 8px;border:1px solid var(--br);border-radius:8px;background:var(--card)"><option value="full">Campo completo</option><option value="half">Medio campo</option><option value="any">No afecta</option></select></label></div>
+      <div class="tools"><label style="display:flex;align-items:center;gap:8px;font-size:.9rem">Campo <select id="cc" style="padding:6px 8px;border:1px solid var(--br);border-radius:8px;background:var(--card)"><option value="full">Campo completo</option><option value="half">Medio campo</option></select></label></div>
       <div class="tools" id="tools"></div>
       <canvas id="cv" width="800" height="400"></canvas>
       <p class="hint">Elige una herramienta y pulsa en la pista. Las flechas y pases se dibujan arrastrando. Con la goma, pulsa un elemento para borrarlo.</p>
@@ -94,7 +94,8 @@ dialog canvas{width:100%;max-height:60vh;object-fit:contain;border-radius:8px}
       </div>
       <label>Objetivo<input id="ob" placeholder="Qué se trabaja"></label>
       <label>Descripción y consignas<textarea id="ds" rows="5" placeholder="Organización, reglas, progresiones…"></textarea></label>
-      <label>Puntos a incidir / Variaciones<textarea id="pv" rows="4" placeholder="Qué debe reforzar o corregir el entrenador, variantes, progresiones…"></textarea></label>
+      <label>Puntos a incidir<textarea id="pv" rows="3" placeholder="Qué debe reforzar o corregir el entrenador…"></textarea></label>
+      <label>Variaciones<textarea id="va" rows="3" placeholder="Variantes y progresiones del ejercicio…"></textarea></label>
       <div style="display:flex;gap:8px"><button class="btn pri" id="sv">Guardar en la biblioteca</button><button class="btn" id="nw">Nuevo</button></div>
     </div>
   </div>
@@ -143,9 +144,9 @@ function fillSel(sel,first){CATS.forEach(function(k){var o=document.createElemen
 fillSel($("#fc"));fillSel($("#ct"));
 function chips(e){return '<div class="chips"><span class="chip c"></span><span class="chip"></span><span class="chip"></span><span class="chip"></span></div>'}
 function req(e){if(e.jf===undefined)return e.pl||"";return e.jf+" jugadores"+(e.po?" + "+e.po+(e.po>1?" porteros":" portero"):"")}
-function mkChips(e){var d=document.createElement("div");d.className="chips";[[e.cat,1],[e.lvl],[e.court==="half"?"Medio campo":e.court==="any"?"Cualquier campo":""],[req(e)]].forEach(function(a){if(!a[0]&&a[0]!==0)return;var s=document.createElement("span");s.className="chip"+(a[1]?" c":"");s.textContent=a[0];d.appendChild(s)});if(e.by){var au=document.createElement("span");au.className="chip au";au.dataset.by=e.by;au.textContent="Por …";d.appendChild(au)}return d}
+function mkChips(e){var d=document.createElement("div");d.className="chips";[[e.cat,1],[e.lvl],[e.court==="half"?"Medio campo":""],[req(e)]].forEach(function(a){if(!a[0]&&a[0]!==0)return;var s=document.createElement("span");s.className="chip"+(a[1]?" c":"");s.textContent=a[0];d.appendChild(s)});if(e.by){var au=document.createElement("span");au.className="chip au";au.dataset.by=e.by;au.textContent="Por …";d.appendChild(au)}return d}
 function render(){var g=$("#grid");g.textContent="";utr();var q=$("#q").value.toLowerCase(),fc=$("#fc").value,fn=$("#fn").value,fj=$("#fj").value,fp=$("#fp").value,fa=$("#fa").value,fk=$("#fk").value;
-  var l=lib.filter(function(e){return!!e.del===trash&&(fk===""||(e.court||"full")===fk||e.court==="any")&&(!onlyFav||favs.indexOf(e.id)>-1)&&(!trash||!shared||adm||e.by===me)&&(!fc||e.cat===fc)&&(fa!=="me"||e.by===me)&&(fj===""||e.jf===undefined||e.jf<=+fj)&&(fp===""||e.po===undefined||e.po<=+fp)&&(!fn||e.lvl===fn)&&(!q||(e.name+" "+e.obj+" "+e.ds).toLowerCase().indexOf(q)>-1)});
+  var l=lib.filter(function(e){return!!e.del===trash&&(fk===""||(e.court==="half"?"half":"full")===fk)&&(!onlyFav||favs.indexOf(e.id)>-1)&&(!trash||!shared||adm||e.by===me)&&(!fc||e.cat===fc)&&(fa!=="me"||e.by===me)&&(fj===""||e.jf===undefined||e.jf<=+fj)&&(fp===""||e.po===undefined||e.po<=+fp)&&(!fn||e.lvl===fn)&&(!q||(e.name+" "+e.obj+" "+e.ds).toLowerCase().indexOf(q)>-1)});
   if(!l.length){g.innerHTML='<div class="empty">'+(trash?"La papelera está vacía.":"No hay ejercicios. Crea el primero en la pestaña «Crear ejercicio».")+'</div>';return}
   l.forEach(function(e){var d=document.createElement("div");d.className="card";var cv=mkc(400,e);draw(cv,e.items||[]);cv.onclick=function(){show(e)};d.appendChild(cv);
     var b=document.createElement("div");b.className="cb";var h=document.createElement("h3");h.textContent=e.name;b.appendChild(h);b.appendChild(mkChips(e));
@@ -154,7 +155,7 @@ function render(){var g=$("#grid");g.textContent="";utr();var q=$("#q").value.to
     b.appendChild(a);d.appendChild(b);g.appendChild(d)});fillNames()}
 function show(e){var c=$("#dc");c.textContent="";var h=document.createElement("h2");h.textContent=e.name;h.style.margin="0 0 8px";var cv=mkc(720,e);draw(cv,e.items||[]);
   var o=document.createElement("p");o.innerHTML="<b>Objetivo:</b> ";o.appendChild(document.createTextNode(e.obj||"—"));var p=document.createElement("p");p.className="pre";p.textContent=e.ds||"";
-  c.appendChild(h);c.appendChild(mkChips(e));c.appendChild(document.createElement("br"));c.appendChild(cv);c.appendChild(o);c.appendChild(p);if(e.pv){var q=document.createElement("p");q.className="pre";var qb=document.createElement("b");qb.textContent="Puntos a incidir / Variaciones:";q.appendChild(qb);q.appendChild(document.createTextNode("\n"+e.pv));c.appendChild(q)}$("#dlg").showModal();fillNames()}
+  c.appendChild(h);c.appendChild(mkChips(e));c.appendChild(document.createElement("br"));c.appendChild(cv);c.appendChild(o);c.appendChild(p);[["Puntos a incidir:",e.pv],["Variaciones:",e.va]].forEach(function(z){if(!z[1])return;var q=document.createElement("p");q.className="pre";var qb=document.createElement("b");qb.textContent=z[0];q.appendChild(qb);q.appendChild(document.createTextNode("\n"+z[1]));c.appendChild(q)});$("#dlg").showModal();fillNames()}
 $("#cl").onclick=function(){$("#dlg").close()};
 ["#q","#fc","#fn","#fj","#fp","#fa","#fk"].forEach(function(s){$(s).oninput=render});
 
@@ -177,11 +178,11 @@ function setCourt(hf){cv.width=hf?400:800;cv.height=400;cv.style.maxWidth=hf?"52
 $("#cc").onchange=function(){var hf=this.value==="half";if(hf){var out=cur.filter(function(o){return o.x>400||(o.x2!==undefined&&o.x2>400)});if(out.length&&!confirm("Se quitarán "+out.length+" elemento(s) que quedan fuera del medio campo. ¿Continuar?")){this.value="full";return}cur=cur.filter(function(o){return out.indexOf(o)<0})}setCourt(hf);redraw()};
 $("#undo").onclick=function(){cur.pop();redraw()};
 $("#clr").onclick=function(){if(!cur.length||confirm("¿Vaciar la pista?")){cur=[];redraw()}};
-function reset(){cid=null;cur=[];["#nm","#ob","#ds","#pv"].forEach(function(s){$(s).value=""});$("#jf").value=6;$("#po").value=0;$("#cc").value="full";setCourt(false);$("#ct").selectedIndex=0;$("#lv").value="Intermedio";$("#sv").textContent="Guardar en la biblioteca";redraw()}
+function reset(){cid=null;cur=[];["#nm","#ob","#ds","#pv","#va"].forEach(function(s){$(s).value=""});$("#jf").value=6;$("#po").value=0;$("#cc").value="full";setCourt(false);$("#ct").selectedIndex=0;$("#lv").value="Intermedio";$("#sv").textContent="Guardar en la biblioteca";redraw()}
 $("#nw").onclick=reset;
-function edit(e){cid=e.id;cur=JSON.parse(JSON.stringify(e.items||[]));$("#nm").value=e.name;$("#ct").value=e.cat;$("#lv").value=e.lvl;$("#pv").value=e.pv||"";$("#cc").value=e.court||"full";setCourt(e.court==="half");$("#jf").value=e.jf===undefined?"":e.jf;$("#po").value=e.po===undefined?0:e.po;$("#ob").value=e.obj||"";$("#ds").value=e.ds||"";$("#sv").textContent="Guardar cambios";tab(2)}
+function edit(e){cid=e.id;cur=JSON.parse(JSON.stringify(e.items||[]));$("#nm").value=e.name;$("#ct").value=e.cat;$("#lv").value=e.lvl;$("#pv").value=e.pv||"";$("#va").value=e.va||"";$("#cc").value=e.court==="half"?"half":"full";setCourt(e.court==="half");$("#jf").value=e.jf===undefined?"":e.jf;$("#po").value=e.po===undefined?0:e.po;$("#ob").value=e.obj||"";$("#ds").value=e.ds||"";$("#sv").textContent="Guardar cambios";tab(2)}
 $("#sv").onclick=function(){var n=$("#nm").value.trim();if(!n){alert("Ponle un nombre al ejercicio.");$("#nm").focus();return}
-  var e={id:cid||("e"+Date.now()),name:n,cat:$("#ct").value,lvl:$("#lv").value,court:$("#cc").value,pv:$("#pv").value.trim(),jf:+$("#jf").value||0,po:+$("#po").value||0,pl:"",obj:$("#ob").value.trim(),ds:$("#ds").value.trim(),items:cur.slice(),ts:Date.now(),by:authorFor(cid)};
+  var e={id:cid||("e"+Date.now()),name:n,cat:$("#ct").value,lvl:$("#lv").value,court:$("#cc").value,pv:$("#pv").value.trim(),va:$("#va").value.trim(),jf:+$("#jf").value||0,po:+$("#po").value||0,pl:"",obj:$("#ob").value.trim(),ds:$("#ds").value.trim(),items:cur.slice(),ts:Date.now(),by:authorFor(cid)};
   saveEx(e);reset();tab(1)};
 /* ---- sesión ---- */
 var favs=[],onlyFav=false;try{favs=JSON.parse(localStorage.getItem("fs_favs")||"[]")||[]}catch(e){}
@@ -221,7 +222,7 @@ $("#sd").onclick=async function(){var L=sitems();if(!L.length){alert("Añade eje
       nl(22+ih);if(k){P.setDrawColor(190);P.line(15,y-4,195,y-4)}
       txt((k+1)+". "+e.name,13,1,1);txt(e.cat+" · "+x.m+" min · "+req(e),9,0,2);
       P.addImage(c.toDataURL("image/jpeg",.85),"JPEG",15,y,iw,ih);y+=ih+5;
-      [["Objetivo",e.obj],["Descripción",e.ds],["Puntos a incidir / Variaciones",e.pv]].forEach(function(z){if(!z[1])return;txt(z[0],10,1,0);txt(z[1],10,0,3)});
+      [["Objetivo",e.obj],["Descripción",e.ds],["Puntos a incidir",e.pv],["Variaciones",e.va]].forEach(function(z){if(!z[1])return;txt(z[0],10,1,0);txt(z[1],10,0,3)});
       y+=4});
     var f=new File([P.output("blob")],"sesion-futbol-sala.pdf",{type:"application/pdf"});
     if(navigator.canShare&&navigator.canShare({files:[f]})&&/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)){
