@@ -32,12 +32,12 @@ main{max-width:1100px;margin:0 auto;padding:20px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:.75rem;padding:2px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--br);color:var(--mu)}
 .chip.c{background:var(--ac);color:var(--acx);border-color:var(--ac)}
-.acts{display:flex;gap:6px;margin-top:auto}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
 .empty{text-align:center;color:var(--mu);padding:40px 0}
 .ed{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px}
 @media(max-width:820px){.ed{grid-template-columns:1fr}}
 .board{background:var(--card);border:1px solid var(--br);border-radius:12px;padding:12px}
-#cv{width:100%;border-radius:8px;touch-action:none;display:block;cursor:crosshair}
+#cv{margin:0 auto;width:100%;border-radius:8px;touch-action:none;display:block;cursor:crosshair}
 .tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .tools .tab{font-size:.85rem;padding:6px 10px}
 .f{display:flex;flex-direction:column;gap:10px}
@@ -46,9 +46,10 @@ main{max-width:1100px;margin:0 auto;padding:20px}
 .hint{font-size:.8rem;color:var(--mu);margin:8px 0 0}
 dialog{border:1px solid var(--br);border-radius:14px;background:var(--card);color:var(--tx);max-width:760px;width:calc(100% - 24px);padding:16px}
 dialog::backdrop{background:rgba(0,0,0,.55)}
-dialog canvas{width:100%;border-radius:8px}
+dialog canvas{width:100%;max-height:60vh;object-fit:contain;border-radius:8px}
 .pre{white-space:pre-wrap}
 #auth{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}#auth[hidden]{display:none}.abox{background:var(--card);border:1px solid var(--br);border-radius:14px;padding:22px;width:100%;max-width:380px}.abox h2{margin:0 0 10px;font-size:1.2rem}.abox input{padding:10px 11px;border:1px solid var(--br);border-radius:8px;background:var(--bg)}.abox [hidden]{display:none}
+.card canvas,.row canvas{aspect-ratio:2/1;object-fit:contain;background:var(--br)}.mn{display:flex;align-items:center;gap:6px;font-size:.85rem;margin-top:6px}.mn input{width:72px;padding:5px 7px;border:1px solid var(--br);border-radius:6px;background:var(--bg)}
 </style>
 </head>
 <body>
@@ -66,6 +67,8 @@ dialog canvas{width:100%;border-radius:8px}
     <button class="btn" id="imp" hidden></button>
     <select id="fa" hidden><option value="">Todos los autores</option><option value="me">Solo los míos</option></select>
     <button class="btn" id="tr" hidden></button>
+    <select id="fk"><option value="">Todo tipo de campo</option><option value="full">Campo completo</option><option value="half">Medio campo</option><option value="any">No afecta</option></select>
+    <button class="btn" id="fvb">☆ Favoritos</button>
   </div>
   <div class="grid" id="grid"></div>
 </section>
@@ -73,6 +76,7 @@ dialog canvas{width:100%;border-radius:8px}
 <section id="v2" hidden>
   <div class="ed">
     <div class="board">
+      <div class="tools"><label style="display:flex;align-items:center;gap:8px;font-size:.9rem">Campo <select id="cc" style="padding:6px 8px;border:1px solid var(--br);border-radius:8px;background:var(--card)"><option value="full">Campo completo</option><option value="half">Medio campo</option><option value="any">No afecta</option></select></label></div>
       <div class="tools" id="tools"></div>
       <canvas id="cv" width="800" height="400"></canvas>
       <p class="hint">Elige una herramienta y pulsa en la pista. Las flechas y pases se dibujan arrastrando. Con la goma, pulsa un elemento para borrarlo.</p>
@@ -85,11 +89,12 @@ dialog canvas{width:100%;border-radius:8px}
         <label>Nivel<select id="lv"><option>Iniciación</option><option selected>Intermedio</option><option>Avanzado</option></select></label>
       </div>
       <div class="r">
-        <label>Duración (min)<input id="du" type="number" min="1" value="10"></label>
-        <label>Jugadores de campo<input id="jf" type="number" min="0" value="6"></label></div><div class="r"><label>Porteros<input id="po" type="number" min="0" value="0"></label><span></span>
+        
+        <label>Jugadores de campo<input id="jf" type="number" min="0" value="6"></label><label>Porteros<input id="po" type="number" min="0" value="0"></label>
       </div>
       <label>Objetivo<input id="ob" placeholder="Qué se trabaja"></label>
       <label>Descripción y consignas<textarea id="ds" rows="5" placeholder="Organización, reglas, progresiones…"></textarea></label>
+      <label>Puntos a incidir / Variaciones<textarea id="pv" rows="4" placeholder="Qué debe reforzar o corregir el entrenador, variantes, progresiones…"></textarea></label>
       <div style="display:flex;gap:8px"><button class="btn pri" id="sv">Guardar en la biblioteca</button><button class="btn" id="nw">Nuevo</button></div>
     </div>
   </div>
@@ -101,7 +106,7 @@ dialog canvas{width:100%;border-radius:8px}
 </section>
 </main>
 <div id="auth"><div class="abox"><h2>⚽ Fútbol Sala · Ejercicios</h2><div id="am" class="hint">Conectando…</div>
-<div id="af" hidden class="f"><input id="ae" type="email" placeholder="Correo electrónico" autocomplete="email"><input id="ap" type="password" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="current-password"><input id="an" placeholder="Tu nombre (solo si creas cuenta)"><div style="display:flex;gap:8px"><button class="btn pri" id="ain">Entrar</button><button class="btn" id="aup">Crear cuenta</button></div></div>
+<div id="af" hidden class="f"><input id="ae" type="email" placeholder="Correo electrónico" autocomplete="email"><input id="ap" type="password" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="current-password"><input id="an" placeholder="Tu nombre (solo si creas cuenta)"><div style="display:flex;gap:8px"><button class="btn pri" id="ain">Entrar</button><button class="btn" id="aup">Crear cuenta</button></div><button class="btn sm" id="afg">¿Has olvidado la contraseña?</button></div>
 <div id="apend" hidden><p>Tu cuenta está creada y pendiente de aprobación. Cuando el administrador te dé acceso, la biblioteca se abrirá sola.</p><button class="btn" id="aout">Salir</button></div></div></div>
 <dialog id="dlg"><div id="dc"></div><div style="text-align:right;margin-top:12px"><button class="btn" id="cl">Cerrar</button></div></dialog>
 
@@ -122,8 +127,9 @@ var $=function(s){return document.querySelector(s)};
 
 /* ---- drawing ---- */
 function arrow(x,y,x2,y2,dash,s){var c=this;c.save();c.strokeStyle="#fff";c.fillStyle="#fff";c.lineWidth=3*s;c.setLineDash(dash?[8*s,6*s]:[]);c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);c.stroke();c.setLineDash([]);var a=Math.atan2(y2-y,x2-x),h=12*s;c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-h*Math.cos(a-.45),y2-h*Math.sin(a-.45));c.lineTo(x2-h*Math.cos(a+.45),y2-h*Math.sin(a+.45));c.closePath();c.fill();c.restore()}
-function court(c){c.fillStyle="#2f8f4e";c.fillRect(0,0,800,400);c.strokeStyle="rgba(255,255,255,.9)";c.lineWidth=3;c.strokeRect(10,10,780,380);c.beginPath();c.moveTo(400,10);c.lineTo(400,390);c.stroke();c.beginPath();c.arc(400,200,60,0,7);c.stroke();[10,790].forEach(function(gx,i){c.beginPath();c.arc(gx,200,120,i?Math.PI/2:-Math.PI/2,i?Math.PI*1.5:Math.PI/2);c.stroke();c.fillStyle="#fff";c.fillRect(i?790:2,170,8,60)})}
-function draw(cv,items,pre){var s=cv.width/800,c=cv.getContext("2d");c.setTransform(s,0,0,s,0,0);court(c);var A=arrow.bind(c);
+function court(c){c.fillStyle="#c98f4b";c.fillRect(0,0,800,400);c.strokeStyle="rgba(255,255,255,.9)";c.lineWidth=3;c.strokeRect(10,10,780,380);c.beginPath();c.moveTo(400,10);c.lineTo(400,390);c.stroke();c.beginPath();c.arc(400,200,60,0,7);c.stroke();[10,790].forEach(function(gx,i){c.beginPath();c.arc(gx,200,120,i?Math.PI/2:-Math.PI/2,i?Math.PI*1.5:Math.PI/2);c.stroke();c.fillStyle="#fff";c.fillRect(i?790:2,170,8,60)})}
+function mkc(w,e){var c=document.createElement("canvas");c.width=e&&e.court==="half"?w/2:w;c.height=w/2;return c}
+function draw(cv,items,pre){var s=cv.width/(cv.width===cv.height?400:800),c=cv.getContext("2d");c.setTransform(s,0,0,s,0,0);court(c);var A=arrow.bind(c);
   items.concat(pre?[pre]:[]).forEach(function(o){
     if(o.t==="a"||o.t==="s"){A(o.x,o.y,o.x2,o.y2,o.t==="s",1);return}
     c.save();c.translate(o.x,o.y);
@@ -137,20 +143,20 @@ function fillSel(sel,first){CATS.forEach(function(k){var o=document.createElemen
 fillSel($("#fc"));fillSel($("#ct"));
 function chips(e){return '<div class="chips"><span class="chip c"></span><span class="chip"></span><span class="chip"></span><span class="chip"></span></div>'}
 function req(e){if(e.jf===undefined)return e.pl||"";return e.jf+" jugadores"+(e.po?" + "+e.po+(e.po>1?" porteros":" portero"):"")}
-function mkChips(e){var d=document.createElement("div");d.className="chips";[[e.cat,1],[e.lvl],[e.dur+" min"],[req(e)]].forEach(function(a){if(!a[0]&&a[0]!==0)return;var s=document.createElement("span");s.className="chip"+(a[1]?" c":"");s.textContent=a[0];d.appendChild(s)});if(e.by){var au=document.createElement("span");au.className="chip au";au.dataset.by=e.by;au.textContent="Por …";d.appendChild(au)}return d}
-function render(){var g=$("#grid");g.textContent="";utr();var q=$("#q").value.toLowerCase(),fc=$("#fc").value,fn=$("#fn").value,fj=$("#fj").value,fp=$("#fp").value,fa=$("#fa").value;
-  var l=lib.filter(function(e){return!!e.del===trash&&(!trash||!shared||adm||e.by===me)&&(!fc||e.cat===fc)&&(fa!=="me"||e.by===me)&&(fj===""||e.jf===undefined||e.jf<=+fj)&&(fp===""||e.po===undefined||e.po<=+fp)&&(!fn||e.lvl===fn)&&(!q||(e.name+" "+e.obj+" "+e.ds).toLowerCase().indexOf(q)>-1)});
+function mkChips(e){var d=document.createElement("div");d.className="chips";[[e.cat,1],[e.lvl],[e.court==="half"?"Medio campo":e.court==="any"?"Cualquier campo":""],[req(e)]].forEach(function(a){if(!a[0]&&a[0]!==0)return;var s=document.createElement("span");s.className="chip"+(a[1]?" c":"");s.textContent=a[0];d.appendChild(s)});if(e.by){var au=document.createElement("span");au.className="chip au";au.dataset.by=e.by;au.textContent="Por …";d.appendChild(au)}return d}
+function render(){var g=$("#grid");g.textContent="";utr();var q=$("#q").value.toLowerCase(),fc=$("#fc").value,fn=$("#fn").value,fj=$("#fj").value,fp=$("#fp").value,fa=$("#fa").value,fk=$("#fk").value;
+  var l=lib.filter(function(e){return!!e.del===trash&&(fk===""||(e.court||"full")===fk||e.court==="any")&&(!onlyFav||favs.indexOf(e.id)>-1)&&(!trash||!shared||adm||e.by===me)&&(!fc||e.cat===fc)&&(fa!=="me"||e.by===me)&&(fj===""||e.jf===undefined||e.jf<=+fj)&&(fp===""||e.po===undefined||e.po<=+fp)&&(!fn||e.lvl===fn)&&(!q||(e.name+" "+e.obj+" "+e.ds).toLowerCase().indexOf(q)>-1)});
   if(!l.length){g.innerHTML='<div class="empty">'+(trash?"La papelera está vacía.":"No hay ejercicios. Crea el primero en la pestaña «Crear ejercicio».")+'</div>';return}
-  l.forEach(function(e){var d=document.createElement("div");d.className="card";var cv=document.createElement("canvas");cv.width=400;cv.height=200;draw(cv,e.items||[]);cv.onclick=function(){show(e)};d.appendChild(cv);
+  l.forEach(function(e){var d=document.createElement("div");d.className="card";var cv=mkc(400,e);draw(cv,e.items||[]);cv.onclick=function(){show(e)};d.appendChild(cv);
     var b=document.createElement("div");b.className="cb";var h=document.createElement("h3");h.textContent=e.name;b.appendChild(h);b.appendChild(mkChips(e));
     var a=document.createElement("div");a.className="acts";
-    [["+ Sesión",function(b){ses.ids.push(e.id);psess();ucnt();b.textContent="Añadido ✓";setTimeout(function(){b.textContent="+ Sesión"},1200)}],["Ver",function(){show(e)}],["Editar",function(){edit(e)}],["Eliminar",function(){if(confirm("¿Mover «"+e.name+"» a la papelera?")){delEx(e);render()}},"dan"],["Restaurar",function(){restoreEx(e);render()}],["Borrar del todo",function(){if(confirm("Se borrará para siempre «"+e.name+"». ¿Continuar?")){purgeEx(e);render()}},"dan"]].forEach(function(z){if(trash?(z[0]==="Editar"||z[0]==="+ Sesión"||z[0]==="Eliminar"):(z[0]==="Restaurar"||z[0]==="Borrar del todo"))return;if((z[0]==="Editar"||z[0]==="Eliminar"||z[0]==="Restaurar")&&!canMod(e))return;if(z[0]==="Borrar del todo"&&!canPurge())return;var k=document.createElement("button");k.className="btn sm "+(z[2]||"");k.textContent=z[0];k.onclick=function(){z[1](k)};a.appendChild(k)});
+    [["+ Sesión",function(b){ses.items.push({id:e.id,min:0});psess();ucnt();b.textContent="Añadido ✓";setTimeout(function(){b.textContent="+ Sesión"},1200)}],["Ver",function(){show(e)}],[favs.indexOf(e.id)>-1?"★ Favorito":"☆ Favorito",function(){toggleFav(e.id)},"","fav"],["Editar",function(){edit(e)}],["Eliminar",function(){if(confirm("¿Mover «"+e.name+"» a la papelera?")){delEx(e);render()}},"dan"],["Restaurar",function(){restoreEx(e);render()}],["Borrar del todo",function(){if(confirm("Se borrará para siempre «"+e.name+"». ¿Continuar?")){purgeEx(e);render()}},"dan"]].forEach(function(z){if(trash&&z[3]==="fav")return;if(trash?(z[0]==="Editar"||z[0]==="+ Sesión"||z[0]==="Eliminar"):(z[0]==="Restaurar"||z[0]==="Borrar del todo"))return;if((z[0]==="Editar"||z[0]==="Eliminar"||z[0]==="Restaurar")&&!canMod(e))return;if(z[0]==="Borrar del todo"&&!canPurge())return;var k=document.createElement("button");k.className="btn sm "+(z[2]||"");k.textContent=z[0];k.onclick=function(){z[1](k)};a.appendChild(k)});
     b.appendChild(a);d.appendChild(b);g.appendChild(d)});fillNames()}
-function show(e){var c=$("#dc");c.textContent="";var h=document.createElement("h2");h.textContent=e.name;h.style.margin="0 0 8px";var cv=document.createElement("canvas");cv.width=720;cv.height=360;draw(cv,e.items||[]);
+function show(e){var c=$("#dc");c.textContent="";var h=document.createElement("h2");h.textContent=e.name;h.style.margin="0 0 8px";var cv=mkc(720,e);draw(cv,e.items||[]);
   var o=document.createElement("p");o.innerHTML="<b>Objetivo:</b> ";o.appendChild(document.createTextNode(e.obj||"—"));var p=document.createElement("p");p.className="pre";p.textContent=e.ds||"";
-  c.appendChild(h);c.appendChild(mkChips(e));c.appendChild(document.createElement("br"));c.appendChild(cv);c.appendChild(o);c.appendChild(p);$("#dlg").showModal();fillNames()}
+  c.appendChild(h);c.appendChild(mkChips(e));c.appendChild(document.createElement("br"));c.appendChild(cv);c.appendChild(o);c.appendChild(p);if(e.pv){var q=document.createElement("p");q.className="pre";var qb=document.createElement("b");qb.textContent="Puntos a incidir / Variaciones:";q.appendChild(qb);q.appendChild(document.createTextNode("\n"+e.pv));c.appendChild(q)}$("#dlg").showModal();fillNames()}
 $("#cl").onclick=function(){$("#dlg").close()};
-["#q","#fc","#fn","#fj","#fp","#fa"].forEach(function(s){$(s).oninput=render});
+["#q","#fc","#fn","#fj","#fp","#fa","#fk"].forEach(function(s){$(s).oninput=render});
 
 /* ---- tabs ---- */
 function tab(n){[1,2,3].forEach(function(i){$("#v"+i).hidden=n!==i;$("#t"+i).classList.toggle("on",n===i)});if(n===1)render();else if(n===2)redraw();else rsess()}
@@ -159,7 +165,7 @@ $("#t1").onclick=function(){tab(1)};$("#t2").onclick=function(){tab(2)};$("#t3")
 /* ---- editor ---- */
 var tb=$("#tools");TOOLS.forEach(function(t){var b=document.createElement("button");b.className="tab"+(t[0]===tool?" on":"");b.textContent=t[1];b.onclick=function(){tool=t[0];[].forEach.call(tb.children,function(x){x.classList.remove("on")});b.classList.add("on")};tb.appendChild(b)});
 var cv=$("#cv");
-function pos(e){var r=cv.getBoundingClientRect();return{x:Math.round((e.clientX-r.left)*800/r.width),y:Math.round((e.clientY-r.top)*400/r.height)}}
+function pos(e){var r=cv.getBoundingClientRect();return{x:Math.round((e.clientX-r.left)*(cv.width===cv.height?400:800)/r.width),y:Math.round((e.clientY-r.top)*400/r.height)}}
 function redraw(){draw(cv,cur,pv)}
 cv.onpointerdown=function(e){var p=pos(e);cv.setPointerCapture(e.pointerId);
   if(tool==="x"){var bi=-1,bd=26;cur.forEach(function(o,i){var d=Math.hypot(o.x-p.x,o.y-p.y);if(o.x2!==undefined)d=Math.min(d,Math.hypot(o.x2-p.x,o.y2-p.y));if(d<bd){bd=d;bi=i}});if(bi>-1){cur.splice(bi,1);redraw()}return}
@@ -167,38 +173,63 @@ cv.onpointerdown=function(e){var p=pos(e);cv.setPointerCapture(e.pointerId);
   var o={t:tool,x:p.x,y:p.y};if(tool==="p"||tool==="d"||tool==="g")o.n=cur.filter(function(x){return x.t===tool}).length+1;cur.push(o);redraw()};
 cv.onpointermove=function(e){if(!st)return;var p=pos(e);pv={t:tool,x:st.x,y:st.y,x2:p.x,y2:p.y};redraw()};
 cv.onpointerup=function(e){if(!st)return;var p=pos(e);if(Math.hypot(p.x-st.x,p.y-st.y)>15)cur.push({t:tool,x:st.x,y:st.y,x2:p.x,y2:p.y});st=null;pv=null;redraw()};
+function setCourt(hf){cv.width=hf?400:800;cv.height=400;cv.style.maxWidth=hf?"520px":""}
+$("#cc").onchange=function(){var hf=this.value==="half";if(hf){var out=cur.filter(function(o){return o.x>400||(o.x2!==undefined&&o.x2>400)});if(out.length&&!confirm("Se quitarán "+out.length+" elemento(s) que quedan fuera del medio campo. ¿Continuar?")){this.value="full";return}cur=cur.filter(function(o){return out.indexOf(o)<0})}setCourt(hf);redraw()};
 $("#undo").onclick=function(){cur.pop();redraw()};
 $("#clr").onclick=function(){if(!cur.length||confirm("¿Vaciar la pista?")){cur=[];redraw()}};
-function reset(){cid=null;cur=[];["#nm","#ob","#ds"].forEach(function(s){$(s).value=""});$("#jf").value=6;$("#po").value=0;$("#du").value=10;$("#ct").selectedIndex=0;$("#lv").value="Intermedio";$("#sv").textContent="Guardar en la biblioteca";redraw()}
+function reset(){cid=null;cur=[];["#nm","#ob","#ds","#pv"].forEach(function(s){$(s).value=""});$("#jf").value=6;$("#po").value=0;$("#cc").value="full";setCourt(false);$("#ct").selectedIndex=0;$("#lv").value="Intermedio";$("#sv").textContent="Guardar en la biblioteca";redraw()}
 $("#nw").onclick=reset;
-function edit(e){cid=e.id;cur=JSON.parse(JSON.stringify(e.items||[]));$("#nm").value=e.name;$("#ct").value=e.cat;$("#lv").value=e.lvl;$("#du").value=e.dur;$("#jf").value=e.jf===undefined?"":e.jf;$("#po").value=e.po===undefined?0:e.po;$("#ob").value=e.obj||"";$("#ds").value=e.ds||"";$("#sv").textContent="Guardar cambios";tab(2)}
+function edit(e){cid=e.id;cur=JSON.parse(JSON.stringify(e.items||[]));$("#nm").value=e.name;$("#ct").value=e.cat;$("#lv").value=e.lvl;$("#pv").value=e.pv||"";$("#cc").value=e.court||"full";setCourt(e.court==="half");$("#jf").value=e.jf===undefined?"":e.jf;$("#po").value=e.po===undefined?0:e.po;$("#ob").value=e.obj||"";$("#ds").value=e.ds||"";$("#sv").textContent="Guardar cambios";tab(2)}
 $("#sv").onclick=function(){var n=$("#nm").value.trim();if(!n){alert("Ponle un nombre al ejercicio.");$("#nm").focus();return}
-  var e={id:cid||("e"+Date.now()),name:n,cat:$("#ct").value,lvl:$("#lv").value,dur:+$("#du").value||0,jf:+$("#jf").value||0,po:+$("#po").value||0,pl:"",obj:$("#ob").value.trim(),ds:$("#ds").value.trim(),items:cur.slice(),ts:Date.now(),by:authorFor(cid)};
+  var e={id:cid||("e"+Date.now()),name:n,cat:$("#ct").value,lvl:$("#lv").value,court:$("#cc").value,pv:$("#pv").value.trim(),jf:+$("#jf").value||0,po:+$("#po").value||0,pl:"",obj:$("#ob").value.trim(),ds:$("#ds").value.trim(),items:cur.slice(),ts:Date.now(),by:authorFor(cid)};
   saveEx(e);reset();tab(1)};
 /* ---- sesión ---- */
-var ses={name:"",ids:[]};try{var rs=localStorage.getItem("fs_ses");if(rs)ses=JSON.parse(rs)}catch(e){}
+var favs=[],onlyFav=false;try{favs=JSON.parse(localStorage.getItem("fs_favs")||"[]")||[]}catch(e){}
+function toggleFav(id){var on=favs.indexOf(id)<0;favs=on?favs.concat([id]):favs.filter(function(x){return x!==id});
+  if(shared&&F&&me){F.updateDoc(F.doc(fs,"users",me),{favs:on?F.arrayUnion(id):F.arrayRemove(id)}).catch(dberr)}else{try{localStorage.setItem("fs_favs",JSON.stringify(favs))}catch(e){}}
+  render()}
+$("#fvb").onclick=function(){onlyFav=!onlyFav;this.textContent=(onlyFav?"★":"☆")+" Favoritos";this.classList.toggle("pri",onlyFav);render()};
+var ses={name:"",items:[]};try{var rs=localStorage.getItem("fs_ses");if(rs)ses=JSON.parse(rs)}catch(e){}
+if(!ses||!Array.isArray(ses.items))ses={name:(ses&&ses.name)||"",items:((ses&&ses.ids)||[]).map(function(id){return{id:id,min:0}})};
 function psess(){try{localStorage.setItem("fs_ses",JSON.stringify(ses))}catch(e){}}
-function sitems(){return ses.ids.map(function(id){return lib.find(function(e){return e.id===id&&!e.del})}).filter(Boolean)}
+function sitems(){var o=[];ses.items.forEach(function(it,i){var e=lib.find(function(x){return x.id===it.id&&!x.del});if(e)o.push({e:e,m:+it.min||e.dur||10,i:i})});return o}
 function ucnt(){var n=sitems().length;$("#cnt").textContent=n?"("+n+")":""}
-function stats(L){var t=0,j=0,p=0;L.forEach(function(e){t+=e.dur||0;j=Math.max(j,e.jf||0);p=Math.max(p,e.po||0)});return{t:t,j:j,p:p}}
-function rsess(){ses.ids=ses.ids.filter(function(id){return lib.some(function(e){return e.id===id&&!e.del})});var L=sitems(),S=stats(L);$("#sn").value=ses.name||"";ucnt();var s=$("#sl");s.textContent="";
-  L.forEach(function(e,i){var r=document.createElement("div");r.className="row";var c=document.createElement("canvas");c.width=280;c.height=140;draw(c,e.items||[]);
-    var m=document.createElement("div");m.className="m";var h=document.createElement("h3");h.textContent=(i+1)+". "+e.name;m.appendChild(h);m.appendChild(mkChips(e));
-    var k=document.createElement("div");k.className="k";
-    [["↑",-1],["↓",1],["✕",0]].forEach(function(z){var b=document.createElement("button");b.className="btn sm";b.textContent=z[0];b.onclick=function(){var j=i+z[1];if(z[1]===0)ses.ids.splice(i,1);else if(j>=0&&j<ses.ids.length){var t=ses.ids[i];ses.ids[i]=ses.ids[j];ses.ids[j]=t}psess();rsess()};k.appendChild(b)});
-    r.appendChild(c);r.appendChild(m);r.appendChild(k);s.appendChild(r)});
-  $("#sum").textContent=L.length?"Duración total: "+S.t+" min · Necesitas hasta "+S.j+" jugadores"+(S.p?" y "+S.p+(S.p>1?" porteros":" portero"):"")+" (el máximo de cualquier ejercicio).":"Aún no hay ejercicios. Añádelos con «+ Sesión» desde la biblioteca.";fillNames()}
+function stats(L){var t=0,j=0,p=0;L.forEach(function(x){t+=x.m;j=Math.max(j,x.e.jf||0);p=Math.max(p,x.e.po||0)});return{t:t,j:j,p:p}}
+function sumTxt(S){return"Duración total: "+S.t+" min · Hasta "+S.j+" jugadores"+(S.p?" + "+S.p+(S.p>1?" porteros":" portero"):"")}
+var JSPDF="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+function loadJs(u){return new Promise(function(ok,no){if(window.jspdf)return ok();var s=document.createElement("script");s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function lat(t){return String(t==null?"":t).replace(/[→⇢➜]/g,"->").replace(/[“”«»]/g,'"').replace(/[‘’]/g,"'").replace(/[–—]/g,"-").replace(/[^\u0000-\u00FF]/g,"")}
+function rsess(){var L=sitems(),S=stats(L),s=$("#sl");$("#sn").value=ses.name||"";ucnt();s.textContent="";loadJs(JSPDF).catch(function(){});
+  L.forEach(function(x,k){var e=x.e,r=document.createElement("div");r.className="row";var c=mkc(280,e);draw(c,e.items||[]);
+    var m=document.createElement("div");m.className="m";var h=document.createElement("h3");h.textContent=(k+1)+". "+e.name;m.appendChild(h);m.appendChild(mkChips(e));
+    var mi=document.createElement("label");mi.className="mn";mi.textContent="Minutos ";var inp=document.createElement("input");inp.type="number";inp.min=1;inp.value=x.m;
+    inp.onchange=function(){ses.items[x.i].min=Math.max(1,+inp.value||1);psess();rsess()};mi.appendChild(inp);m.appendChild(mi);
+    var kb=document.createElement("div");kb.className="k";
+    [["↑",-1],["↓",1],["✕",0]].forEach(function(z){var b=document.createElement("button");b.className="btn sm";b.textContent=z[0];
+      b.onclick=function(){var nb=L[k+z[1]];if(z[1]===0)ses.items.splice(x.i,1);else if(nb){var t=ses.items[x.i];ses.items[x.i]=ses.items[nb.i];ses.items[nb.i]=t}psess();rsess()};kb.appendChild(b)});
+    r.appendChild(c);r.appendChild(m);r.appendChild(kb);s.appendChild(r)});
+  $("#sum").textContent=L.length?sumTxt(S)+" (el máximo de cualquier ejercicio).":"Aún no hay ejercicios. Añádelos con «+ Sesión» desde la biblioteca.";fillNames()}
 $("#sn").oninput=function(){ses.name=this.value;psess()};
-$("#sx").onclick=function(){if(ses.ids.length&&confirm("¿Vaciar la sesión?")){ses.ids=[];psess();rsess()}};
-function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+$("#sx").onclick=function(){if(ses.items.length&&confirm("¿Vaciar la sesión?")){ses.items=[];psess();rsess()}};
 $("#sd").onclick=async function(){var L=sitems();if(!L.length){alert("Añade ejercicios a la sesión primero.");return}
-  var S=stats(L),h='<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>'+esc(ses.name||"Sesión")+'</title><style>body{font:15px/1.4 system-ui,sans-serif;max-width:800px;margin:20px auto;padding:0 16px;color:#111}h1{margin:0 0 4px}.ex{break-inside:avoid;border-top:2px solid #ccc;padding:12px 0}img{width:100%;max-width:560px;border-radius:6px}.m{color:#555;font-size:.9rem}p{white-space:pre-wrap;margin:6px 0}</style></head><body><h1>'+esc(ses.name||"Sesión de entrenamiento")+'</h1><div class="m">Duración total: '+S.t+' min · Hasta '+S.j+' jugadores'+(S.p?' + '+S.p+' porteros':'')+'</div>';
-  L.forEach(function(e,i){var c=document.createElement("canvas");c.width=800;c.height=400;draw(c,e.items||[]);
-    h+='<div class="ex"><h2>'+(i+1)+'. '+esc(e.name)+'</h2><div class="m">'+esc(e.cat)+' · '+esc(e.lvl)+' · '+e.dur+' min · '+esc(req(e))+'</div><img src="'+c.toDataURL("image/png")+'" alt=""><p><b>Objetivo:</b> '+esc(e.obj)+'</p><p>'+esc(e.ds)+'</p></div>'});
-  h+='</body></html>';
-  var d=null;try{d=window.claude?await claude.use("downloads"):null}catch(e){}
-  if(!d){window.print();return}
-  try{await d.save({filename:"sesion-futbol-sala.html",data:h})}catch(e){if(!e||e.code!=="declined")alert("No se ha podido descargar el archivo.")}};
+  var btn=this;btn.disabled=true;btn.textContent="Generando…";
+  try{await loadJs(JSPDF);var P=new window.jspdf.jsPDF({unit:"mm",format:"a4"}),y=15,S=stats(L);
+    function nl(h){if(y+h>282){P.addPage();y=15}}
+    function txt(t,sz,b,gap){P.setFont("helvetica",b?"bold":"normal");P.setFontSize(sz);P.splitTextToSize(lat(t),180).forEach(function(l){nl(sz*.45);P.text(l,15,y);y+=sz*.45});y+=gap||0}
+    txt(ses.name||"Sesión de entrenamiento",18,1,2);txt(sumTxt(S),10,0,6);
+    L.forEach(function(x,k){var e=x.e,c=mkc(800,e),hf=e.court==="half",iw=hf?70:120,ih=hf?70:60;draw(c,e.items||[]);
+      nl(22+ih);if(k){P.setDrawColor(190);P.line(15,y-4,195,y-4)}
+      txt((k+1)+". "+e.name,13,1,1);txt(e.cat+" · "+x.m+" min · "+req(e),9,0,2);
+      P.addImage(c.toDataURL("image/jpeg",.85),"JPEG",15,y,iw,ih);y+=ih+5;
+      [["Objetivo",e.obj],["Descripción",e.ds],["Puntos a incidir / Variaciones",e.pv]].forEach(function(z){if(!z[1])return;txt(z[0],10,1,0);txt(z[1],10,0,3)});
+      y+=4});
+    var f=new File([P.output("blob")],"sesion-futbol-sala.pdf",{type:"application/pdf"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})&&/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)){
+      try{await navigator.share({files:[f],title:ses.name||"Sesión de entrenamiento"})}catch(er){if(!er||er.name!=="AbortError")P.save("sesion-futbol-sala.pdf")}}
+    else P.save("sesion-futbol-sala.pdf")
+  }catch(er){alert("No se ha podido generar el PDF. Comprueba la conexión e inténtalo de nuevo.")}
+  btn.disabled=false;btn.textContent="Descargar sesión"};
+
 /* ---- biblioteca compartida ---- */
 function canMod(e){return !shared||!e.by||e.by===me||adm}
 function authorFor(id){var x=id&&lib.find(function(y){return y.id===id});return(x&&x.by)||me||undefined}
@@ -237,7 +268,7 @@ async function begin(u){
   }catch(e){showAuth("login");aerr(e)}}
 function enter(u,d){
   if(!d.approved){if(unEx){unEx();unEx=null}shared=null;lib=[];render();showAuth("pend");$("#lo").hidden=true;$("#src").textContent="Pendiente de aprobación";return}
-  showAuth(false);me=u.uid;adm=!!d.admin;$("#lo").hidden=false;$("#fa").hidden=false;$("#src").textContent="Biblioteca compartida";
+  showAuth(false);me=u.uid;adm=!!d.admin;favs=Array.isArray(d.favs)?d.favs:[];$("#lo").hidden=false;$("#fa").hidden=false;$("#src").textContent="Biblioteca compartida";
   usr={profiles:async function(ids){var out={};await Promise.all(ids.map(async function(id){try{var x=await F.getDoc(F.doc(fs,"users",id));if(x.exists())out[id]={name:x.data().name}}catch(e){}}));return out}};
   shared={doc:function(id){var r=F.doc(fs,"exercises",id);return{set:function(o){return F.setDoc(r,o)},update:function(o){return F.updateDoc(r,o)},delete:function(){return F.deleteDoc(r)}}},
     onSnapshot:function(ok,er){return F.onSnapshot(F.collection(fs,"exercises"),ok,er)}};
@@ -259,6 +290,7 @@ $("#aup").onclick=async function(){$("#am").textContent="";pName=$("#an").value.
 $("#ap").onkeydown=function(e){if(e.key==="Enter")$("#ain").click()};
 function out(){if(U)U.signOut(auth)}
 $("#lo").onclick=out;$("#aout").onclick=out;
+$("#afg").onclick=async function(){var em=$("#ae").value.trim();if(!em){$("#am").textContent="Escribe tu correo arriba y vuelve a pulsar.";return}try{await U.sendPasswordResetEmail(auth,em);$("#am").textContent="Si ese correo tiene cuenta, te hemos enviado un enlace para crear una contraseña nueva. Revisa también el spam."}catch(e){aerr(e)}};
 startFB();
 render();ucnt();
 </script>
